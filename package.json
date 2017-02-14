@@ -1,0 +1,40 @@
+{
+  "name": "react-native-image-cache",
+  "version": "0.0.1",
+  "description": "CachedImage component for React native",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "npm run lint && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wcandillon/react-native-image-cache.git"
+  },
+  "keywords": [
+    "react",
+    "image",
+    "cache"
+  ],
+  "author": "William Candillon <w@28.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/wcandillon/react-native-image-cache/issues"
+  },
+  "homepage": "https://github.com/wcandillon/react-native-image-cache#readme",
+  "devDependencies": {
+    "@types/react": "^15.0.9",
+    "@types/react-native": "^0.37.11",
+    "tslint": "^4.4.2",
+    "typescript": "^2.1.6"
+  },
+  "dependencies": {
+    "mobx": "^3.1.0",
+    "mobx-react": "^4.1.0",
+    "react": "^15.4.2",
+    "react-native": "^0.41.2",
+    "react-native-fetch-blob": "v0.10.2-beta.6"
+  }
+}

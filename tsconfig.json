@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "moduleResolution": "node",
+        "jsx": "react",
+        "outDir": "build",
+        "rootDir": "src",
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "experimentalDecorators": true,
+        "preserveConstEnums": true,
+        "allowJs": true,
+        "sourceMap": true,
+        "strictNullChecks": true
+    },
+    "filesGlob": [
+        "src/**/*.ts",
+        "src/**/*.tsx"
+    ],
+    "exclude": [
+        "index.android.js",
+        "index.ios.js",
+        "build",
+        "node_modules"
+    ],
+    "compileOnSave": false
+}
