@@ -10,9 +10,9 @@
         "noImplicitAny": true,
         "experimentalDecorators": true,
         "preserveConstEnums": true,
-        "allowJs": true,
         "sourceMap": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "declaration": true
     },
     "filesGlob": [
         "src/**/*.ts",

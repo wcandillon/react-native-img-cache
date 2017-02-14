@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Image} from "react-native";
 import {observable, computed} from "mobx";
 import {observer} from "mobx-react/native";
-import ImageCache, {CacheHandler} from "./ImageCache";
+import {CacheHandler, ImageCache} from "./ImageCache";
 
 class SmartImageStore {
 
@@ -56,7 +56,7 @@ class SmartImageStore {
     }
 }
 
-interface CachedImageProps {
+export interface CachedImageProps {
     uri: string;
     style?: React.ImageStyle;
     blurRadius?: number;
@@ -90,7 +90,7 @@ export class CachedImage extends Component<CachedImageProps, void>  {
     }
 }
 
-interface CachedThumbnailProps {
+export interface CachedThumbnailProps {
     size?: number;
     style?: React.ImageStyle;
     uri: string;

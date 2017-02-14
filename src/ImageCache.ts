@@ -13,7 +13,7 @@ type CacheEntry = {
     immutable: boolean;
 };
 
-export default class ImageCache {
+export class ImageCache {
 
     private getPath(uri: string, immutable?: boolean): string {
         if (immutable === true) {
