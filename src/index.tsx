@@ -1,3 +1,5 @@
+import React, {Component} from "react";
+import {Image} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
@@ -13,7 +15,7 @@ type CacheEntry = {
     immutable: boolean;
 };
 
-export default class ImageCache {
+export class ImageCache {
 
     private getPath(uri: string, immutable?: boolean): string {
         if (immutable === true) {
@@ -97,6 +99,7 @@ export default class ImageCache {
         } else {
             this.download(uri, cache);
         }
+
     }
 
     private notify(uri: string) {
@@ -104,5 +107,89 @@ export default class ImageCache {
         handlers.forEach(handler => {
             handler(this.cache[uri].path as string);
         });
+    }
+}
+
+export interface CachedImageProps {
+    uri: string;
+    style?: React.ImageStyle;
+    blurRadius?: number;
+    mutable?: boolean;
+}
+
+export interface CachedImageState {
+    path: string | undefined;
+}
+
+export class CachedImage extends Component<CachedImageProps, CachedImageState>  {
+
+    private uri: string;
+
+    private handler: CacheHandler = (path: string) => {
+        this.setState({ path });
+    };
+
+    constructor() {
+        super();
+        this.state = { path: undefined };
+    }
+
+    private dispose() {
+        if (this.uri) {
+            ImageCache.getCache().dispose(this.uri, this.handler);
+        }
+    }
+
+    private observe(uri: string, mutable: boolean) {
+        if (uri !== this.uri) {
+            this.dispose();
+            this.uri = uri;
+            ImageCache.getCache().on(uri, this.handler, !mutable);
+        }
+    }
+
+    componentWillMount() {
+        const {uri, mutable} = this.props;
+        this.observe(uri, mutable === true);
+    }
+
+    componentWillReceiveProps(nextProps: CachedImageProps) {
+        const {uri, mutable} = nextProps;
+        this.observe(uri, mutable === true);
+    }
+
+    componentWillUnmount() {
+        this.dispose();
+    }
+
+    render() {
+        const {style, blurRadius} = this.props;
+        return <Image style={style}
+                      blurRadius={blurRadius}
+                      source={{ uri: this.state.path }}>{this.props.children}</Image>;
+    }
+}
+
+export interface CachedThumbnailProps {
+    size?: number;
+    style?: React.ImageStyle;
+    uri: string;
+    mutable?: boolean;
+}
+
+export class CachedThumbnail  extends Component<CachedThumbnailProps, void>  {
+
+    render() {
+        const {size, style, uri, mutable} = this.props;
+        const thumbnailStyle = {
+            width: size ? size : 36,
+            height: (this.props.size) ? size : 36,
+            borderRadius: this.props.size ? (this.props.size / 2) : 18
+        };
+        return <CachedImage
+            uri={uri}
+            style={[thumbnailStyle ,style]}
+            mutable={mutable}
+        />;
     }
 }
