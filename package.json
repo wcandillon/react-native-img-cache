@@ -1,6 +1,6 @@
 {
   "name": "react-native-img-cache",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "CachedImage component for React native",
   "main": "build/index.js",
   "typings": "lib/index.d.ts",
@@ -38,8 +38,6 @@
   "dependencies": {
     "mobx": "^3.1.0",
     "mobx-react": "^4.1.0",
-    "react": "^15.4.2",
-    "react-native": "^0.41.2",
     "react-native-fetch-blob": "v0.10.2-beta.6"
   }
 }
