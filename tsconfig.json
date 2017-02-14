@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "es6",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "jsx": "react",
         "outDir": "build",
@@ -19,8 +19,6 @@
         "src/**/*.tsx"
     ],
     "exclude": [
-        "index.android.js",
-        "index.ios.js",
         "build",
         "node_modules"
     ],
