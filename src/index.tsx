@@ -112,11 +112,11 @@ export class ImageCache {
     }
 }
 
-class SmartImageStore {
+class CachedImageStore {
 
     private handler: CacheHandler = (path: string) => {
         this.path = path;
-    };
+    }
 
     // Remote URI
     @observable private _uri: string;
@@ -174,7 +174,7 @@ export interface CachedImageProps {
 @observer
 export class CachedImage extends Component<CachedImageProps, void>  {
 
-    private store: SmartImageStore = new SmartImageStore();
+    private store: CachedImageStore = new CachedImageStore();
 
     componentWillMount() {
         const {uri, mutable} = this.props;
@@ -217,7 +217,7 @@ export class CachedThumbnail  extends Component<CachedThumbnailProps, void>  {
         };
         return <CachedImage
             uri={uri}
-        style={[thumbnailStyle ,style]}
+        style={[thumbnailStyle, style]}
         mutable={mutable} />;
     }
 }
