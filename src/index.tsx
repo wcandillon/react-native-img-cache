@@ -1,8 +1,5 @@
 import React, {Component} from "react";
 import {Image} from "react-native";
-import {observable, computed} from "mobx";
-import {observer} from "mobx-react/native";
-
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
@@ -102,6 +99,7 @@ export class ImageCache {
         } else {
             this.download(uri, cache);
         }
+
     }
 
     private notify(uri: string) {
@@ -112,58 +110,6 @@ export class ImageCache {
     }
 }
 
-class CachedImageStore {
-
-    private handler: CacheHandler = (path: string) => {
-        this.path = path;
-    }
-
-    // Remote URI
-    @observable private _uri: string;
-    // Local Path
-    @observable private _path: string;
-    @observable private _mutable: boolean;
-
-    @computed get uri() {
-        return this._uri;
-    }
-
-    set uri(uri: string) {
-        this._uri = uri;
-    }
-
-    @computed get path() {
-        return this._path;
-    }
-
-    set path(path) {
-        this._path = path;
-    }
-
-    @computed get mutable() {
-        return this._mutable;
-    }
-
-    set mutable(mutable) {
-        this._mutable = mutable;
-    }
-
-    setNewImage(uri: string, mutable?: boolean) {
-        this.mutable = mutable === true;
-        if (uri !== this.uri) {
-            this.dispose();
-            this.uri = uri;
-            ImageCache.getCache().on(uri, this.handler, !this.mutable);
-        }
-    }
-
-    dispose() {
-        if (this.uri) {
-            ImageCache.getCache().dispose(this.uri, this.handler);
-        }
-    }
-}
-
 export interface CachedImageProps {
     uri: string;
     style?: React.ImageStyle;
@@ -171,30 +117,56 @@ export interface CachedImageProps {
     mutable?: boolean;
 }
 
-@observer
-export class CachedImage extends Component<CachedImageProps, void>  {
+export interface CachedImageState {
+    path: string | undefined;
+}
 
-    private store: CachedImageStore = new CachedImageStore();
+export class CachedImage extends Component<CachedImageProps, CachedImageState>  {
+
+    private uri: string;
+
+    private handler: CacheHandler = (path: string) => {
+        this.setState({ path });
+    };
+
+    constructor() {
+        super();
+        this.state = { path: undefined };
+    }
+
+    private dispose() {
+        if (this.uri) {
+            ImageCache.getCache().dispose(this.uri, this.handler);
+        }
+    }
+
+    private observe(uri: string, mutable: boolean) {
+        if (uri !== this.uri) {
+            this.dispose();
+            this.uri = uri;
+            ImageCache.getCache().on(uri, this.handler, !mutable);
+        }
+    }
 
     componentWillMount() {
         const {uri, mutable} = this.props;
-        this.store.setNewImage(uri, mutable);
+        this.observe(uri, mutable === true);
     }
 
     componentWillReceiveProps(nextProps: CachedImageProps) {
         const {uri, mutable} = nextProps;
-        this.store.setNewImage(uri, mutable);
+        this.observe(uri, mutable === true);
     }
 
     componentWillUnmount() {
-        this.store.dispose();
+        this.dispose();
     }
 
     render() {
         const {style, blurRadius} = this.props;
         return <Image style={style}
-        blurRadius={blurRadius}
-        source={{ uri: this.store.path }}>{this.props.children}</Image>;
+                      blurRadius={blurRadius}
+                      source={{ uri: this.state.path }}>{this.props.children}</Image>;
     }
 }
 
@@ -205,7 +177,6 @@ export interface CachedThumbnailProps {
     mutable?: boolean;
 }
 
-@observer
 export class CachedThumbnail  extends Component<CachedThumbnailProps, void>  {
 
     render() {
@@ -217,7 +188,8 @@ export class CachedThumbnail  extends Component<CachedThumbnailProps, void>  {
         };
         return <CachedImage
             uri={uri}
-        style={[thumbnailStyle, style]}
-        mutable={mutable} />;
+            style={[thumbnailStyle ,style]}
+            mutable={mutable}
+        />;
     }
 }
