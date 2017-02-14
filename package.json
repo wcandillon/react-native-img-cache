@@ -1,6 +1,6 @@
 {
   "name": "react-native-img-cache",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "CachedImage component for React native",
   "main": "build/index.js",
   "typings": "lib/index.d.ts",
@@ -10,6 +10,9 @@
     "watch": "tsc --watch --pretty",
     "test": "npm run lint && npm run build"
   },
+  "files": [
+    "build"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wcandillon/react-native-image-cache.git"
