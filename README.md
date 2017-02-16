@@ -1,6 +1,6 @@
 # React Native Image Cache
 
-[![CircleCI](https://circleci.com/gh/wcandillon/react-native-image-cache.svg?style=svg)](https://circleci.com/gh/wcandillon/react-native-image-cache)
+[![CircleCI](https://circleci.com/gh/wcandillon/react-native-img-cache.svg?style=svg)](https://circleci.com/gh/wcandillon/react-native-img-cache)
 [![npm version](https://badge.fury.io/js/react-native-img-cache.svg)](https://badge.fury.io/js/react-native-img-cache)
 
 CachedImage component and Cache image manager for React Native. Based on [this article](https://hackernoon.com/image-caching-in-react-native-96d8df33ca84).
@@ -8,7 +8,7 @@ CachedImage component and Cache image manager for React Native. Based on [this a
 ## Installation
 
 ```bash
-npm install react-native-image-cache --save
+npm install react-native-img-cache --save
 ```
 
 ### react-native-fetch-blob
@@ -22,7 +22,7 @@ If your project doesn't have a dependency with this package already, please refe
 The `CachedImage` component assumes that the image URI will never change. The image is stored and served from the application cache.
 
 ```jsx
-import {CachedImage} from "react-native-image-cache";
+import {CachedImage} from "react-native-img-cache";
 
 <CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} />
 ```
@@ -30,7 +30,7 @@ import {CachedImage} from "react-native-image-cache";
 The `mutable` property implies assumes that the image URI can change over time. The lifetime of this cache is the one of the running application and it can be manually busted using `ImageCache`.
 
 ```jsx
-import {CachedImage} from "react-native-image-cache";
+import {CachedImage} from "react-native-img-cache";
 
 <CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} mutable />
 ```
