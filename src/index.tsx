@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Image, ImageProperties} from "react-native";
+import {Image, ImageProperties, ImageURISource} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
@@ -146,12 +146,14 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     }
 
     componentWillMount() {
-        const {source, mutable} = this.props;
+        const {mutable} = this.props;
+        const source = this.props.source as ImageURISource;
         this.observe(source.uri as string, mutable === true);
     }
 
     componentWillReceiveProps(nextProps: CachedImageProps) {
-        const {source, mutable} = nextProps;
+        const {mutable} = nextProps;
+        const source = this.props.source as ImageURISource;
         this.observe(source.uri as string, mutable === true);
     }
 
