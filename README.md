@@ -24,7 +24,7 @@ The `CachedImage` component assumes that the image URI will never change. The im
 ```jsx
 import {CachedImage} from "react-native-img-cache";
 
-<CachedImage uri="https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" />
+<CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} />
 ```
 
 The `mutable` property implies assumes that the image URI can change over time. The lifetime of this cache is the one of the running application and it can be manually busted using `ImageCache`.
@@ -32,7 +32,7 @@ The `mutable` property implies assumes that the image URI can change over time. 
 ```jsx
 import {CachedImage} from "react-native-img-cache";
 
-<CachedImage uri="https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" mutable />
+<CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} mutable />
 ```
 
 ### ImageCache
