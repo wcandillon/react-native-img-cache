@@ -147,12 +147,12 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
 
     componentWillMount() {
         const {source, mutable} = this.props;
-        this.observe(source.uri, mutable === true);
+        this.observe(source.uri as string, mutable === true);
     }
 
     componentWillReceiveProps(nextProps: CachedImageProps) {
         const {source, mutable} = nextProps;
-        this.observe(source.uri, mutable === true);
+        this.observe(source.uri as string, mutable === true);
     }
 
     componentWillUnmount() {
