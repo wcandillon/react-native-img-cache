@@ -124,7 +124,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
 
     private handler: CacheHandler = (path: string) => {
         this.setState({ path });
-    };
+    }
 
     constructor() {
         super();
