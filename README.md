@@ -1,6 +1,6 @@
 # React Native Image Cache
 
-[![CircleCI](https://circleci.com/gh/wcandillon/react-native-image-cache.svg?style=svg)](https://circleci.com/gh/wcandillon/react-native-image-cache)
+[![CircleCI](https://circleci.com/gh/wcandillon/react-native-img-cache.svg?style=svg)](https://circleci.com/gh/wcandillon/react-native-img-cache)
 [![npm version](https://badge.fury.io/js/react-native-img-cache.svg)](https://badge.fury.io/js/react-native-img-cache)
 
 CachedImage component and Cache image manager for React Native. Based on [this article](https://hackernoon.com/image-caching-in-react-native-96d8df33ca84).
