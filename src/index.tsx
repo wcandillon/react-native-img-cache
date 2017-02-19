@@ -13,6 +13,7 @@ type CacheEntry = {
     handlers: CacheHandler[];
     path: string | undefined;
     immutable: boolean;
+    task?: any;
 };
 
 export class ImageCache {
@@ -71,17 +72,23 @@ export class ImageCache {
         }
     }
 
+    cancel(uri: string) {
+        const cache = this.cache[uri];
+        if (cache && cache.downloading) {
+            cache.task.cancel();
+        }
+    }
+
     private download(uri: string, cache: CacheEntry) {
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
-            RNFetchBlob.config({ path })
-                .fetch("GET", uri, {})
-                .then(() => {
+            cache.task = RNFetchBlob.config({ path }).fetch("GET", uri, {});
+            cache.task.then(() => {
                     cache.downloading = false;
                     cache.path = path;
                     this.notify(uri);
-                });
+            }).catch(() => cache.downloading = false);
         }
     }
 
