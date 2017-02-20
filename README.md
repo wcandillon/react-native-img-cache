@@ -37,17 +37,23 @@ import {CachedImage} from "react-native-img-cache";
 
 ### ImageCache
 
+#### bust(uri)
+
 `ImageCache` can be used to bust an image from the local cache.
 
 ```js
 ImageCache.getCache().bust("https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg");
 ```
 
+#### cancel(uri)
+
 It can also be used to cancel the download of an image. This can be very useful when [scrolling through images](https://medium.com/@wcandillon/image-pipeline-with-react-native-listview-b92d4768b17c).
 
 ```js
 ImageCache.getCache().cancel("https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg");
 ```
+
+#### on(uri, observer, immutable)
 
 The `ImageCache` class can register observers to the cache.
 
@@ -60,6 +66,8 @@ ImageCache.getCache().on(uri, observer, immutable);
 ```
 
 We use the observer pattern instead of a promise because a mutable image might have different version with different paths in the cache.
+
+#### dispose(uri, observer)
 
 Observers can be deregistered using `dispose`:
 
