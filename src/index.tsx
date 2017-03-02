@@ -20,9 +20,11 @@ export class ImageCache {
 
     private getPath(uri: string, immutable?: boolean): string {
         if (immutable === true) {
-            return dirs.CacheDir + "_immutable_images/" + SHA1(uri) + ".jpg";
+            console.log(dirs.CacheDir + "/" + SHA1(uri) + ".jpg");
+            return dirs.CacheDir + "/" + SHA1(uri) + ".jpg";
         } else {
-            return dirs.CacheDir + "/_images" + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ".jpg";
+            console.log(dirs.CacheDir + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ".jpg");
+            return dirs.CacheDir + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ".jpg";
         }
     }
 
