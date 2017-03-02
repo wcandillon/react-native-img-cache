@@ -89,7 +89,7 @@ export class ImageCache {
                 cache.downloading = false;
                 cache.path = path;
                 this.notify(uri);
-            }).catch(error => cache.downloading = false);
+            }).catch(() => cache.downloading = false);
         }
     }
 
