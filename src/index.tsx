@@ -1,8 +1,9 @@
 import React, {Component} from "react";
-import {Image, ImageProperties, ImageURISource} from "react-native";
+import {Image, ImageProperties, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
+const filePrefix = Platform.OS === "ios" ? "" : "file://";
 const dirs = RNFetchBlob.fs.dirs;
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 
@@ -85,10 +86,10 @@ export class ImageCache {
             cache.downloading = true;
             cache.task = RNFetchBlob.config({ path }).fetch("GET", uri, {});
             cache.task.then(() => {
-                    cache.downloading = false;
-                    cache.path = path;
-                    this.notify(uri);
-            }).catch(() => cache.downloading = false);
+                cache.downloading = false;
+                cache.path = path;
+                this.notify(uri);
+            }).catch((error: any) => cache.downloading = false);
         }
     }
 
@@ -171,7 +172,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     render() {
         const {style, blurRadius} = this.props;
         return <Image style={style}
-                      blurRadius={blurRadius}
-                      source={{ uri: this.state.path }}>{this.props.children}</Image>;
+            blurRadius={blurRadius}
+            source={{ uri: filePrefix + this.state.path }}>{this.props.children}</Image>;
     }
 }
