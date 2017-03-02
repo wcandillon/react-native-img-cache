@@ -8,8 +8,6 @@ CachedImage component and Cache image manager for React Native. Here are several
 * [Image Pipeline with React Native ListView](https://hackernoon.com/image-pipeline-with-react-native-listview-b92d4768b17c)
 * [Firebase Live Pagination](https://medium.com/@wcandillon/firebase-live-pagination-474748853e52)
 
-Based on [this article]().
-
 ## Installation
 
 ```bash
