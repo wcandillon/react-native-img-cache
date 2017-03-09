@@ -20,10 +20,11 @@ type CacheEntry = {
 export class ImageCache {
 
     private getPath(uri: string, immutable?: boolean): string {
+        const ext = uri.substring(uri.lastIndexOf("."));
         if (immutable === true) {
-            return dirs.CacheDir + "/" + SHA1(uri) + ".jpg";
+            return dirs.CacheDir + "/" + SHA1(uri) + ext;
         } else {
-            return dirs.CacheDir + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ".jpg";
+            return dirs.CacheDir + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
         }
     }
 
