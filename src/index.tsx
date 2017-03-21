@@ -3,7 +3,6 @@ import {Image, ImageProperties, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
-const filePrefix = Platform.OS === "ios" ? "" : "file://";
 const dirs = RNFetchBlob.fs.dirs;
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 
@@ -130,6 +129,7 @@ export interface CachedImageState {
 export class CachedImage extends Component<CachedImageProps, CachedImageState>  {
 
     private uri: string;
+    private static readonly filePrefix = Platform.OS === "ios" ? "" : "file://";
 
     private handler: CacheHandler = (path: string) => {
         this.setState({ path });
@@ -161,9 +161,8 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     }
 
     componentWillReceiveProps(nextProps: CachedImageProps) {
-        const {mutable} = nextProps;
-        const source = this.props.source as ImageURISource;
-        this.observe(source.uri as string, mutable === true);
+        const {source, mutable} = nextProps;
+        this.observe((source as ImageURISource).uri as string, mutable === true);
     }
 
     componentWillUnmount() {
@@ -172,8 +171,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
 
     render() {
         const {style, blurRadius} = this.props;
-        return <Image style={style}
-            blurRadius={blurRadius}
-            source={{ uri: filePrefix + this.state.path }}>{this.props.children}</Image>;
+        const source = this.state.path ? { uri: CachedImage.filePrefix + this.state.path } : {};
+        return <Image style={style} blurRadius={blurRadius} source={source}>{this.props.children}</Image>;
     }
 }
