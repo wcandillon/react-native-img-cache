@@ -5,7 +5,7 @@ const SHA1 = require("crypto-js/sha1");
 
 const dirs = RNFetchBlob.fs.dirs;
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-
+const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
 export type CacheHandler = (path: string) => void;
 
 type CacheEntry = {
@@ -129,7 +129,6 @@ export interface CachedImageState {
 export class CachedImage extends Component<CachedImageProps, CachedImageState>  {
 
     private uri: string;
-    private static readonly filePrefix = Platform.OS === "ios" ? "" : "file://";
 
     private handler: CacheHandler = (path: string) => {
         this.setState({ path });
@@ -171,7 +170,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
 
     render() {
         const {style, blurRadius} = this.props;
-        const source = this.state.path ? { uri: CachedImage.filePrefix + this.state.path } : {};
+        const source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
         return <Image style={style} blurRadius={blurRadius} source={source}>{this.props.children}</Image>;
     }
 }
