@@ -3,7 +3,7 @@ import {Image, ImageProperties, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
-const dirs = RNFetchBlob.fs.dirs;
+const dirs = RNFetchBlob.fs.dirs + "/react-native-img-cache";
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
 export type CacheHandler = (path: string) => void;
@@ -173,8 +173,8 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     }
 
     render() {
-        const {style, blurRadius} = this.props;
-        const source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
-        return <Image style={style} blurRadius={blurRadius} source={source}>{this.props.children}</Image>;
+        const props = Object.assign({}, this.props);
+        props.source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
+        return <Image {...props as any}>{this.props.children}</Image>;
     }
 }
