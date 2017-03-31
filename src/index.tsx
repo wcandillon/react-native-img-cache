@@ -3,8 +3,8 @@ import {Image, ImageProperties, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
-const dirs = RNFetchBlob.fs.dirs + "/react-native-img-cache";
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
 export type CacheHandler = (path: string) => void;
 
@@ -25,9 +25,9 @@ export class ImageCache {
             :
                 uri.substring(uri.lastIndexOf("."), uri.indexOf("?"));
         if (immutable === true) {
-            return dirs.CacheDir + "/" + SHA1(uri) + ext;
+            return BASE_DIR + "/" + SHA1(uri) + ext;
         } else {
-            return dirs.CacheDir + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
+            return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
         }
     }
 
@@ -173,8 +173,14 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     }
 
     render() {
-        const props = Object.assign({}, this.props);
-        props.source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
-        return <Image {...props as any}>{this.props.children}</Image>;
+        const props: any = {};
+        Object.keys(this.props).forEach(prop => {
+            if (prop === "source") {
+                props.source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
+            } else {
+                props[prop] = (this.props as any)[prop];
+            }
+        });
+        return <Image {...props}>{this.props.children}</Image>;
     }
 }
