@@ -18,12 +18,17 @@ type CacheEntry = {
 
 export class ImageCache {
 
-    private getPath(uri: string, immutable?: boolean): string {
-        const ext =
+    private getPath(uri: string, immutable?: boolean, fallback_ext: string = ".jpg"): string {
+        let ext =
             uri.indexOf("?") === -1 ?
                 uri.substring(uri.lastIndexOf("."))
             :
                 uri.substring(uri.lastIndexOf("."), uri.indexOf("?"));
+
+        if (ext.length > 5 || ext.length < 3) {
+            ext = fallback_ext;
+        }
+
         if (immutable === true) {
             return BASE_DIR + "/" + SHA1(uri) + ext;
         } else {
