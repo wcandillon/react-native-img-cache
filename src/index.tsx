@@ -33,14 +33,23 @@ export class ImageCache {
 
     private constructor() {}
 
-    static getCache(): ImageCache {
+    static get(): ImageCache {
         if (!ImageCache.instance) {
             ImageCache.instance = new ImageCache();
         }
         return ImageCache.instance;
     }
 
+    static getCache(): ImageCache {
+        return ImageCache.get();
+    }
+
     private cache: { [uri: string]: CacheEntry } = {};
+
+    clear() {
+        this.cache = {};
+        return RNFetchBlob.fs.unlink(BASE_DIR);
+    }
 
     on(uri: string, handler: CacheHandler, immutable?: boolean) {
         if (!this.cache[uri]) {
@@ -143,7 +152,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
 
     private dispose() {
         if (this.uri) {
-            ImageCache.getCache().dispose(this.uri, this.handler);
+            ImageCache.get().dispose(this.uri, this.handler);
         }
     }
 
@@ -151,7 +160,7 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
         if (uri !== this.uri) {
             this.dispose();
             this.uri = uri;
-            ImageCache.getCache().on(uri, this.handler, !mutable);
+            ImageCache.get().on(uri, this.handler, !mutable);
         }
     }
 
