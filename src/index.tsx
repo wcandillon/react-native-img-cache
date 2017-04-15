@@ -92,7 +92,7 @@ export class ImageCache {
                 cache.path = path;
                 this.notify(uri);
             }).catch(() => {
-                cache.downloading = false
+                cache.downloading = false;
                 // Because of this bug: https://github.com/wkh237/react-native-fetch-blob/issues/331
                 RNFetchBlob.fs.unlink(path);
             });
