@@ -140,7 +140,6 @@ export interface CachedImageProps extends ImageProperties {
 
 export interface CustomCachedImageProps extends CachedImageProps {
     component: new () => Component<any, any>;
-    [name: string]: any;
 }
 
 export interface CachedImageState {
@@ -214,7 +213,7 @@ export class CachedImage extends BaseCachedImage<CachedImageProps> {
     }
 }
 
-export class CustomCachedImage extends BaseCachedImage<CustomCachedImageProps> {
+export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCachedImage<P> {
 
     constructor() {
         super();
