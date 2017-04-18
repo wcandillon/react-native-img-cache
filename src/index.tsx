@@ -135,13 +135,18 @@ export class ImageCache {
 
 export interface CachedImageProps extends ImageProperties {
     mutable?: boolean;
+
+}
+
+export interface CustomCachedImageProps extends CachedImageProps {
+    component: new () => Component<any, any>;
 }
 
 export interface CachedImageState {
     path: string | undefined;
 }
 
-export class CachedImage extends Component<CachedImageProps, CachedImageState>  {
+export abstract class BaseCachedImage<P extends CachedImageProps> extends Component<P, CachedImageState>  {
 
     private uri: string;
 
@@ -168,13 +173,25 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
         }
     }
 
+    protected getProps() {
+        const props: any = {};
+        Object.keys(this.props).forEach(prop => {
+            if (prop === "source") {
+                props["source"] = this.state.path ? {uri: FILE_PREFIX + this.state.path} : {};
+            } else if (["mutable", "component"].indexOf(prop) === -1) {
+                props[prop] = (this.props as any)[prop];
+            }
+        });
+        return props;
+    }
+
     componentWillMount() {
         const {mutable} = this.props;
         const source = this.props.source as ImageURISource;
         this.observe(source.uri as string, mutable === true);
     }
 
-    componentWillReceiveProps(nextProps: CachedImageProps) {
+    componentWillReceiveProps(nextProps: P) {
         const {source, mutable} = nextProps;
         this.observe((source as ImageURISource).uri as string, mutable === true);
     }
@@ -182,16 +199,30 @@ export class CachedImage extends Component<CachedImageProps, CachedImageState>  
     componentWillUnmount() {
         this.dispose();
     }
+}
+
+export class CachedImage extends BaseCachedImage<CachedImageProps> {
+
+    constructor() {
+        super();
+    }
 
     render() {
-        const props: any = {};
-        Object.keys(this.props).forEach(prop => {
-            if (prop === "source") {
-                props.source = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
-            } else {
-                props[prop] = (this.props as any)[prop];
-            }
-        });
+        const props = this.getProps();
         return <Image {...props}>{this.props.children}</Image>;
+    }
+}
+
+export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCachedImage<P> {
+
+    constructor() {
+        super();
+    }
+
+    render() {
+        const {component} = this.props;
+        const props = this.getProps();
+        const Component = component;
+        return <Component {...props}>{this.props.children}</Component>;
     }
 }

@@ -38,6 +38,27 @@ import {CachedImage} from "react-native-img-cache";
 <CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} mutable />
 ```
 
+### Custom Image Component
+
+By default, the `CachedImage` component is using the [standard RN Image component](https://facebook.github.io/react-native/docs/image.html).
+It is possible however to use a different component via `CustomCachedImage`. In the example below, we use the `Image` component from [react-native-image-progress](https://github.com/oblador/react-native-image-progress).
+
+```jsx
+import {CustomCachedImage} from "react-native-img-cache";
+
+import Image from 'react-native-image-progress';
+import ProgressBar from 'react-native-progress/Bar';
+
+<CustomCachedImage
+  component={Image}
+  source={{ uri: 'http://loremflickr.com/640/480/dog' }} 
+  indicator={ProgressBar} 
+  style={{
+    width: 320, 
+    height: 240, 
+  }}/>
+```
+
 ### ImageCache
 
 #### clear()
