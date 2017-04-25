@@ -102,7 +102,7 @@ export class ImageCache {
                 this.notify(uri);
             }).catch(() => {
                 cache.downloading = false;
-                // Because of this bug: https://github.com/wkh237/react-native-fetch-blob/issues/331
+                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
                 RNFetchBlob.fs.unlink(path);
             });
         }
