@@ -8,6 +8,10 @@ CachedImage component and Cache image manager for React Native. Here are several
 * [Image Pipeline with React Native ListView](https://hackernoon.com/image-pipeline-with-react-native-listview-b92d4768b17c)
 * [Firebase Live Pagination](https://medium.com/@wcandillon/firebase-live-pagination-474748853e52)
 
+## Why do I need this?
+Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) now has a cache property `cache: force-cache`. This is a major improvement, however at this time, I wasn't able to use it in a way that provides a smooth user experience as good as this module. This module provides also more control over the way images are downloaded via `cancel()`. This can be extremely useful when scrolling quickly through a list of images.
+
+
 ## Installation
 
 ### react-native-fetch-blob
