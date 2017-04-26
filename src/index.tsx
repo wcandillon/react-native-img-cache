@@ -94,8 +94,8 @@ export class ImageCache {
         }
     }
 
-    private download(source: CachedImageURISource, cache: CacheEntry) {
-        const {uri} = source;
+    private download(uri: string, cache: CacheEntry) {
+        const {source} = cache;
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
@@ -120,11 +120,11 @@ export class ImageCache {
                 if (exists) {
                     this.notify(uri);
                 } else {
-                    this.download(cache.source, cache);
+                    this.download(uri, cache);
                 }
             });
         } else {
-            this.download(cache.source, cache);
+            this.download(uri, cache);
         }
 
     }
