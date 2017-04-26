@@ -13,6 +13,7 @@ type CacheEntry = {
     handlers: CacheHandler[];
     path: string | undefined;
     immutable: boolean;
+    requestParams: any;
     task?: any;
 };
 
@@ -51,12 +52,13 @@ export class ImageCache {
         return RNFetchBlob.fs.unlink(BASE_DIR);
     }
 
-    on(uri: string, handler: CacheHandler, immutable?: boolean) {
+    on(uri: string, handler: CacheHandler, immutable?: boolean, requestParams?: any) {
         if (!this.cache[uri]) {
             this.cache[uri] = {
                 downloading: false,
                 handlers: [handler],
                 immutable: immutable === true,
+                requestParams: requestParams || {},
                 path: immutable === true ? this.getPath(uri, immutable) : undefined
             };
         } else {
@@ -95,7 +97,7 @@ export class ImageCache {
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
-            cache.task = RNFetchBlob.config({ path }).fetch("GET", uri, {});
+            cache.task = RNFetchBlob.config({ path }).fetch("GET", uri, cache.requestParams);
             cache.task.then(() => {
                 cache.downloading = false;
                 cache.path = path;
@@ -135,7 +137,7 @@ export class ImageCache {
 
 export interface CachedImageProps extends ImageProperties {
     mutable?: boolean;
-
+    requestParams?: any;
 }
 
 export interface CustomCachedImageProps extends CachedImageProps {
@@ -149,6 +151,7 @@ export interface CachedImageState {
 export abstract class BaseCachedImage<P extends CachedImageProps> extends Component<P, CachedImageState>  {
 
     private uri: string;
+    private requestParams: any;
 
     private handler: CacheHandler = (path: string) => {
         this.setState({ path });
@@ -165,11 +168,12 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         }
     }
 
-    private observe(uri: string, mutable: boolean) {
+    private observe(uri: string, mutable: boolean, requestParams: any) {
         if (uri !== this.uri) {
             this.dispose();
             this.uri = uri;
-            ImageCache.get().on(uri, this.handler, !mutable);
+            this.requestParams = requestParams;
+            ImageCache.get().on(uri, this.handler, !mutable, requestParams);
         }
     }
 
@@ -178,7 +182,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         Object.keys(this.props).forEach(prop => {
             if (prop === "source") {
                 props["source"] = this.state.path ? {uri: FILE_PREFIX + this.state.path} : {};
-            } else if (["mutable", "component"].indexOf(prop) === -1) {
+            } else if (["mutable", "component", "requestParams"].indexOf(prop) === -1) {
                 props[prop] = (this.props as any)[prop];
             }
         });
@@ -186,14 +190,14 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
     componentWillMount() {
-        const {mutable} = this.props;
+        const {mutable, requestParams} = this.props;
         const source = this.props.source as ImageURISource;
-        this.observe(source.uri as string, mutable === true);
+        this.observe(source.uri as string, mutable === true, requestParams);
     }
 
     componentWillReceiveProps(nextProps: P) {
-        const {source, mutable} = nextProps;
-        this.observe((source as ImageURISource).uri as string, mutable === true);
+        const {source, mutable, requestParams} = nextProps;
+        this.observe((source as ImageURISource).uri as string, mutable === true, requestParams);
     }
 
     componentWillUnmount() {
