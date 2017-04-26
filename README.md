@@ -3,13 +3,10 @@
 [![CircleCI](https://circleci.com/gh/wcandillon/react-native-img-cache.svg?style=svg)](https://circleci.com/gh/wcandillon/react-native-img-cache)
 [![npm version](https://badge.fury.io/js/react-native-img-cache.svg)](https://badge.fury.io/js/react-native-img-cache)
 
-CachedImage component and Cache image manager for React Native. Here are several articles on RN and image processing:
-* [Image Caching in React Native](https://hackernoon.com/image-caching-in-react-native-96d8df33ca84)
-* [Image Pipeline with React Native ListView](https://hackernoon.com/image-pipeline-with-react-native-listview-b92d4768b17c)
-* [Firebase Live Pagination](https://medium.com/@wcandillon/firebase-live-pagination-474748853e52)
+CachedImage component and Cache image manager for React Native.
 
 ## Why do I need this?
-Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) now has a cache property: `cache: force-cache`. This is a major improvement, however at this time, I wasn't able to use it in a way that provides a smooth user experience as good as this module. This module provides also more control over the way images are downloaded via `cancel()`. This can be extremely useful when scrolling quickly through a list of images.
+Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has a new cache property, e.g.: `cache: force-cache`. This is a major improvement, however at this time, I wasn't able to use it in a way that provides a user experience as smooth as the one provided by this module. This module also provides also provides control over the way images are downloaded to the cache via `cancel()`. This can be extremely useful when [scrolling quickly through a list of images](https://hackernoon.com/image-pipeline-with-react-native-listview-b92d4768b17c).
 
 
 ## Installation
