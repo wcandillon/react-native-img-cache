@@ -94,7 +94,6 @@ export class ImageCache {
     }
 
     private download(uri: string, cache: CacheEntry) {
-      console.log('cache.requestParams', cache.requestParams);
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
