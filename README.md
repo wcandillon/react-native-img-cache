@@ -6,7 +6,7 @@
 CachedImage component and Cache image manager for React Native.
 
 ## Why do I need this?
-Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has now a cache property: `cache: force-cache` (iOS only). This is a major improvement but only for iOS and at this time, I wasn't able to use it in a way that provides a smooth user experience as good as this module.
+Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has now a cache property: `cache: force-cache` (iOS only). This is a major improvement but only for iOS and at this time, I wasn't able to use it in a way that provides a user experience as smooth as this module.
 
 ## Installation
 
