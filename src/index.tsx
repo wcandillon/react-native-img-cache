@@ -94,12 +94,14 @@ export class ImageCache {
         }
     }
 
-    private download(uri: string, cache: CacheEntry) {
+    private download(cache: CacheEntry) {
         const {source} = cache;
+        const {uri} = source;
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
-            cache.task = RNFetchBlob.config({ path }).fetch("GET", uri, {});
+            const method = source.method ? source.method : "GET";
+            cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
             cache.task.then(() => {
                 cache.downloading = false;
                 cache.path = path;
@@ -120,11 +122,11 @@ export class ImageCache {
                 if (exists) {
                     this.notify(uri);
                 } else {
-                    this.download(uri, cache);
+                    this.download(cache);
                 }
             });
         } else {
-            this.download(uri, cache);
+            this.download(cache);
         }
 
     }
