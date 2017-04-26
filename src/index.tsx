@@ -8,7 +8,12 @@ const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
 export type CacheHandler = (path: string) => void;
 
+export interface CachedImageURISource extends ImageURISource {
+    uri: string;
+}
+
 type CacheEntry = {
+    source: CachedImageURISource;
     downloading: boolean;
     handlers: CacheHandler[];
     path: string | undefined;
@@ -40,10 +45,6 @@ export class ImageCache {
         return ImageCache.instance;
     }
 
-    static getCache(): ImageCache {
-        return ImageCache.get();
-    }
-
     private cache: { [uri: string]: CacheEntry } = {};
 
     clear() {
@@ -51,9 +52,11 @@ export class ImageCache {
         return RNFetchBlob.fs.unlink(BASE_DIR);
     }
 
-    on(uri: string, handler: CacheHandler, immutable?: boolean) {
+    on(source: CachedImageURISource, handler: CacheHandler, immutable?: boolean) {
+        const {uri} = source;
         if (!this.cache[uri]) {
             this.cache[uri] = {
+                source,
                 downloading: false,
                 handlers: [handler],
                 immutable: immutable === true,
@@ -91,7 +94,8 @@ export class ImageCache {
         }
     }
 
-    private download(uri: string, cache: CacheEntry) {
+    private download(source: CachedImageURISource, cache: CacheEntry) {
+        const {uri} = source;
         if (!cache.downloading) {
             const path = this.getPath(uri, cache.immutable);
             cache.downloading = true;
@@ -116,11 +120,11 @@ export class ImageCache {
                 if (exists) {
                     this.notify(uri);
                 } else {
-                    this.download(uri, cache);
+                    this.download(cache.source, cache);
                 }
             });
         } else {
-            this.download(uri, cache);
+            this.download(cache.source, cache);
         }
 
     }
@@ -165,11 +169,11 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         }
     }
 
-    private observe(uri: string, mutable: boolean) {
-        if (uri !== this.uri) {
+    private observe(source: CachedImageURISource, mutable: boolean) {
+        if (source.uri !== this.uri) {
             this.dispose();
-            this.uri = uri;
-            ImageCache.get().on(uri, this.handler, !mutable);
+            this.uri = source.uri;
+            ImageCache.get().on(source, this.handler, !mutable);
         }
     }
 
@@ -185,15 +189,26 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         return props;
     }
 
+
+    private checkSource(source: ImageURISource | ImageURISource[]): CachedImageURISource {
+        if (Array.isArray(source)) {
+            throw new Error(`Giving multiple URIs to CachedImage is not yet support.
+            If you want to see this feature supported, please file and issue at
+             https://github.com/wcandillon/react-native-img-cache`);
+        } else if (!source.uri) {
+            throw new Error(`uri property missing ImageURISource parameter.`);
+        }
+        return source as CachedImageURISource;
+    }
+
     componentWillMount() {
-        const {mutable} = this.props;
-        const source = this.props.source as ImageURISource;
-        this.observe(source.uri as string, mutable === true);
+        const {mutable, source} = this.props;
+        this.observe(this.checkSource(source), mutable === true);
     }
 
     componentWillReceiveProps(nextProps: P) {
         const {source, mutable} = nextProps;
-        this.observe((source as ImageURISource).uri as string, mutable === true);
+        this.observe(this.checkSource(source), mutable === true);
     }
 
     componentWillUnmount() {
