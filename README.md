@@ -6,7 +6,7 @@
 CachedImage component and Cache image manager for React Native.
 
 ## Why do I need this?
-Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has now a cache property: `cache: force-cache` (iOS only). This is a major improvement but only for iOS and at this time, I wasn't able to use it in a way that provides a smooth user experience as good as this module.
+Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has now a cache property: `cache: force-cache` (iOS only). This is a major improvement but only for iOS and at this time, I wasn't able to use it in a way that provides a user experience as smooth as this module.
 
 ## Installation
 
@@ -22,7 +22,10 @@ npm install react-native-img-cache --save
 
 ### CachedImage
 
-The `CachedImage` component assumes that the image URI will never change. The image is stored and served from the application cache.
+The `CachedImage` component assumes that the image URI will never change. The image is stored and served from the application cache. This component accepts the same properties than `Image` except for a few difference:
+* `source` doesn't accept an array of image URIs like `Image` does. Please file an issue if that's something you would like to see supported.
+* The `uri` property in `source` is mandatory.
+* The `body` property in `source` is not supported. Please file an issue if that's something you would like to see supported.
 
 ```jsx
 import {CachedImage} from "react-native-img-cache";
