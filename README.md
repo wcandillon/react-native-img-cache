@@ -22,7 +22,10 @@ npm install react-native-img-cache --save
 
 ### CachedImage
 
-The `CachedImage` component assumes that the image URI will never change. The image is stored and served from the application cache.
+The `CachedImage` component assumes that the image URI will never change. The image is stored and served from the application cache. This component accepts the same properties than `Image` except for a few difference:
+* `source` doesn't accept an array of image URIs like `Image` does. Please file an issue if that's something you would like to see supported.
+* The `uri` property in `source` is mandatory.
+* The `body property` in `source` is not supported. Please file an issue if that's something you would like to see supported.
 
 ```jsx
 import {CachedImage} from "react-native-img-cache";
