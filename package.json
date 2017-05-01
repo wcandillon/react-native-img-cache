@@ -23,7 +23,7 @@
     "image",
     "cache"
   ],
-  "author": "William Candillon <w@28.io>",
+  "author": "William Candillon <wcandillon@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/wcandillon/react-native-image-cache/issues"

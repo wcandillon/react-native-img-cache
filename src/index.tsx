@@ -194,7 +194,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
 
     private checkSource(source: ImageURISource | ImageURISource[]): CachedImageURISource {
         if (Array.isArray(source)) {
-            throw new Error(`Giving multiple URIs to CachedImage is not yet support.
+            throw new Error(`Giving multiple URIs to CachedImage is not yet supported.
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
         } else if (!source.uri) {
