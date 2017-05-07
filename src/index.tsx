@@ -182,7 +182,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     protected getProps() {
         const props: any = {};
         Object.keys(this.props).forEach(prop => {
-            if (prop === "source") {
+            if (prop === "source" && (this.props as any).source.uri) {
                 props["source"] = this.state.path ? {uri: FILE_PREFIX + this.state.path} : {};
             } else if (["mutable", "component"].indexOf(prop) === -1) {
                 props[prop] = (this.props as any)[prop];
@@ -192,25 +192,29 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
 
-    private checkSource(source: ImageURISource | ImageURISource[]): CachedImageURISource {
+    private checkSource(source: ImageURISource | ImageURISource[]): ImageURISource {
         if (Array.isArray(source)) {
             throw new Error(`Giving multiple URIs to CachedImage is not yet supported.
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
-        } else if (!source.uri) {
-            throw new Error(`uri property missing ImageURISource parameter.`);
         }
-        return source as CachedImageURISource;
+        return source;
     }
 
     componentWillMount() {
-        const {mutable, source} = this.props;
-        this.observe(this.checkSource(source), mutable === true);
+        const {mutable} = this.props;
+        const source = this.checkSource(this.props.source);
+        if (source.uri) {
+            this.observe(source as CachedImageURISource, mutable === true);
+        }
     }
 
     componentWillReceiveProps(nextProps: P) {
-        const {source, mutable} = nextProps;
-        this.observe(this.checkSource(source), mutable === true);
+        const {mutable} = nextProps;
+        const source = this.checkSource(nextProps.source);
+        if (source.uri) {
+            this.observe(source as CachedImageURISource, mutable === true);
+        }
     }
 
     componentWillUnmount() {
