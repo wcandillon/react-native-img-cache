@@ -10,7 +10,6 @@
     "watch": "tsc --watch --pretty",
     "test": "npm run lint && npm run build",
     "release": "semantic-release pre && npm publish && semantic-release post",
-    //"postinstall": "npm install typescript && npm run build"
   },
   "files": [
     "build"
