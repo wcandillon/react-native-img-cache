@@ -26,14 +26,16 @@ type CacheEntry = {
 export class ImageCache {
 
     private getPath(dbPath: string, immutable?: boolean): string {
-        let path = dbPath.substring(dbPath.lastIndexOf("/"));
-        path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
-        const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
-        if (immutable === true) {
-            return BASE_DIR + "/" + SHA1(dbPath) + ext;
-        } else {
-            return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
-        }
+      let path = dbPath.substring(dbPath.lastIndexOf("/"));
+      const terms = dbPath.split("/");
+      const toEncode = terms[terms.length-2];
+      const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+      if (immutable === true) {
+          return BASE_DIR + "/" + SHA1(toEncode) + ext;
+      }
+      else {
+          return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
+      }
     }
 
     private static instance: ImageCache;

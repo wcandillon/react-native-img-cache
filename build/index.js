@@ -11,10 +11,11 @@ export class ImageCache {
     }
     getPath(dbPath, immutable) {
         let path = dbPath.substring(dbPath.lastIndexOf("/"));
-        path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
+        const terms = dbPath.split("/");
+        const toEncode = terms[terms.length - 2];
         const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
         if (immutable === true) {
-            return BASE_DIR + "/" + SHA1(dbPath) + ext;
+            return BASE_DIR + "/" + SHA1(toEncode) + ext;
         }
         else {
             return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
