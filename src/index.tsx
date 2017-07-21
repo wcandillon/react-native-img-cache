@@ -10,6 +10,8 @@ export type CacheHandler = (path: string) => void;
 
 export interface CachedImageURISource extends ImageURISource {
     uri: string;
+    dbPath: string;
+    dbProvider: () => {};
 }
 
 type CacheEntry = {
@@ -23,15 +25,17 @@ type CacheEntry = {
 
 export class ImageCache {
 
-    private getPath(uri: string, immutable?: boolean): string {
-        let path = uri.substring(uri.lastIndexOf("/"));
-        path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
-        const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
-        if (immutable === true) {
-            return BASE_DIR + "/" + SHA1(uri) + ext;
-        } else {
-            return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
-        }
+    private getPath(dbPath: string, immutable?: boolean): string {
+      let path = dbPath.substring(dbPath.lastIndexOf("/"));
+      const terms = dbPath.split("/");
+      const toEncode = terms[terms.length-2];
+      const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+      if (immutable === true) {
+          return BASE_DIR + "/" + SHA1(toEncode) + ext;
+      }
+      else {
+          return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
+      }
     }
 
     private static instance: ImageCache;
@@ -45,7 +49,7 @@ export class ImageCache {
         return ImageCache.instance;
     }
 
-    private cache: { [uri: string]: CacheEntry } = {};
+    private cache: { [dbPath: string]: CacheEntry } = {};
 
     clear() {
         this.cache = {};
@@ -53,23 +57,26 @@ export class ImageCache {
     }
 
     on(source: CachedImageURISource, handler: CacheHandler, immutable?: boolean) {
-        const {uri} = source;
-        if (!this.cache[uri]) {
-            this.cache[uri] = {
-                source,
-                downloading: false,
-                handlers: [handler],
-                immutable: immutable === true,
-                path: immutable === true ? this.getPath(uri, immutable) : undefined
-            };
+        console.log('ImageCache Operations on...')
+        const {dbPath, dbProvider} = source;
+        if (!this.cache[dbPath]) {
+          console.log('Entry not in application cache');
+          this.cache[dbPath] = {
+              source: source,
+              downloading: false,
+              handlers: [handler],
+              immutable: immutable === true,
+              path: immutable === true ? this.getPath(dbPath, immutable) : undefined
+          };
+          this.get(dbPath);
         } else {
-            this.cache[uri].handlers.push(handler);
+          this.cache[dbPath].handlers.push(handler);
+          this.get(dbPath);
         }
-        this.get(uri);
     }
 
-    dispose(uri: string, handler: CacheHandler) {
-        const cache = this.cache[uri];
+    dispose(dbPath: string, handler: CacheHandler) {
+        const cache = this.cache[dbPath];
         if (cache) {
             cache.handlers.forEach((h, index) => {
                 if (h === handler) {
@@ -79,48 +86,58 @@ export class ImageCache {
         }
     }
 
-    bust(uri: string) {
-        const cache = this.cache[uri];
-        if (cache !== undefined && !cache.immutable) {
-            cache.path = undefined;
-            this.get(uri);
-        }
-    }
-
-    cancel(uri: string) {
-        const cache = this.cache[uri];
-        if (cache && cache.downloading) {
-            cache.task.cancel();
-        }
-    }
+    // bust(uri: string) {
+    //     const cache = this.cache[uri];
+    //     if (cache !== undefined && !cache.immutable) {
+    //         cache.path = undefined;
+    //         this.get(uri);
+    //     }
+    // }
+    //
+    // cancel(uri: string) {
+    //     const cache = this.cache[uri];
+    //     if (cache && cache.downloading) {
+    //         cache.task.cancel();
+    //     }
+    // }
 
     private download(cache: CacheEntry) {
-        const {source} = cache;
-        const {uri} = source;
-        if (!cache.downloading) {
-            const path = this.getPath(uri, cache.immutable);
-            cache.downloading = true;
-            const method = source.method ? source.method : "GET";
-            cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
-                cache.downloading = false;
-                cache.path = path;
-                this.notify(uri);
-            }).catch(() => {
-                cache.downloading = false;
-                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
-                RNFetchBlob.fs.unlink(path);
-            });
-        }
+        const { source } = cache;
+        const { dbPath, dbProvider } = source;
+        dbProvider.getInstance().firebase.storage()
+        .ref(dbPath)
+        .getDownloadURL().then((uri : string) => {
+          if (!cache.downloading) {
+              console.log('downloading...', source)
+              const path = this.getPath(dbPath, cache.immutable);
+              cache.downloading = true;
+              const method = source.method ? source.method : "GET";
+              cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
+              cache.task.then(() => {
+                  console.log('download finished...')
+                  cache.downloading = false;
+                  cache.path = path;
+                  this.notify(source.dbPath);
+              }).catch(() => {
+                  cache.downloading = false;
+                  // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
+                  RNFetchBlob.fs.unlink(path);
+              });
+          }
+
+        }).catch(err => {
+          console.log('Error retriveing download URL : ', err)
+        })
+
     }
 
-    private get(uri: string) {
-        const cache = this.cache[uri];
+    private get(dbPath: string) {
+        const cache = this.cache[dbPath];
         if (cache.path) {
             // We check here if IOS didn't delete the cache content
             RNFetchBlob.fs.exists(cache.path).then((exists: boolean) => {
                 if (exists) {
-                    this.notify(uri);
+                    this.notify(dbPath);
                 } else {
                     this.download(cache);
                 }
@@ -131,10 +148,10 @@ export class ImageCache {
 
     }
 
-    private notify(uri: string) {
-        const handlers = this.cache[uri].handlers;
+    private notify(dbPath: string) {
+        const handlers = this.cache[dbPath].handlers;
         handlers.forEach(handler => {
-            handler(this.cache[uri].path as string);
+            handler(this.cache[dbPath].path as string);
         });
     }
 }
@@ -154,7 +171,7 @@ export interface CachedImageState {
 
 export abstract class BaseCachedImage<P extends CachedImageProps> extends Component<P, CachedImageState>  {
 
-    private uri: string;
+    private dbPath: string;
 
     private handler: CacheHandler = (path: string) => {
         this.setState({ path });
@@ -166,15 +183,15 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
     private dispose() {
-        if (this.uri) {
-            ImageCache.get().dispose(this.uri, this.handler);
+        if (this.dbPath) {
+            ImageCache.get().dispose(this.dbPath, this.handler);
         }
     }
 
     private observe(source: CachedImageURISource, mutable: boolean) {
-        if (source.uri !== this.uri) {
+        if (source.dbPath !== this.dbPath) {
             this.dispose();
-            this.uri = source.uri;
+            this.dbPath = source.dbPath;
             ImageCache.get().on(source, this.handler, !mutable);
         }
     }
@@ -182,9 +199,10 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     protected getProps() {
         const props: any = {};
         Object.keys(this.props).forEach(prop => {
-            if (prop === "source" && (this.props as any).source.uri) {
-                props["source"] = this.state.path ? {uri: FILE_PREFIX + this.state.path} : {};
-            } else if (["mutable", "component"].indexOf(prop) === -1) {
+            if (prop === "source" && (this.props as any).source.dbPath) {
+                props["source"] = this.state.path ? { dbPath: this.props.source.dbPath, dbProvider: this.props.source.dbProvider, uri: FILE_PREFIX + this.state.path } : {};
+            }
+            else if (["mutable", "component"].indexOf(prop) === -1) {
                 props[prop] = (this.props as any)[prop];
             }
         });
@@ -204,7 +222,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillMount() {
         const {mutable} = this.props;
         const source = this.checkSource(this.props.source);
-        if (source.uri) {
+        if (source.dbPath) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
@@ -212,7 +230,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillReceiveProps(nextProps: P) {
         const {mutable} = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (source.uri) {
+        if (source.dbPath) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
