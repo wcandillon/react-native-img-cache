@@ -1,0 +1,48 @@
+{
+  "name": "react-native-img-cache",
+  "version": "0.0.0-development",
+  "description": "CachedImage component for React native",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc --pretty",
+    "watch": "tsc --watch --pretty",
+    "test": "npm run lint && npm run build",
+    "release": "semantic-release pre && npm publish && semantic-release post",
+    //"postinstall": "npm install typescript && npm run build"
+  },
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wcandillon/react-native-image-cache.git"
+  },
+  "keywords": [
+    "react",
+    "image",
+    "cache"
+  ],
+  "author": "William Candillon <wcandillon@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/wcandillon/react-native-image-cache/issues"
+  },
+  "homepage": "https://github.com/wcandillon/react-native-image-cache#readme",
+  "devDependencies": {
+    "@types/react": "^15.0.9",
+    "@types/react-native": "^0.37.11",
+    "condition-circle": "^1.5.0",
+    "semantic-release": "^6.3.2",
+    "ts-npm-lint": "^0.1.0",
+    "tslint": "^4.4.2",
+    "typescript": "^2.1.6"
+  },
+  "dependencies": {
+    "crypto-js": "^3.1.9-1"
+  },
+  "release": {
+    "verifyConditions": "condition-circle"
+  }
+}

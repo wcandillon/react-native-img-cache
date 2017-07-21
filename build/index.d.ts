@@ -9,7 +9,7 @@ export interface CachedImageURISource extends ImageURISource {
     dbProvider: () => {};
 }
 export declare class ImageCache {
-    private getPath(uri, immutable?);
+    private getPath(dbPath, immutable?);
     private static instance;
     private constructor();
     static get(): ImageCache;
@@ -17,8 +17,6 @@ export declare class ImageCache {
     clear(): any;
     on(source: CachedImageURISource, handler: CacheHandler, immutable?: boolean): void;
     dispose(dbPath: string, handler: CacheHandler): void;
-    bust(uri: string): void;
-    cancel(uri: string): void;
     private download(cache);
     private get(dbPath);
     private notify(dbPath);
@@ -33,7 +31,7 @@ export interface CachedImageState {
     path: string | undefined;
 }
 export declare abstract class BaseCachedImage<P extends CachedImageProps> extends Component<P, CachedImageState> {
-    private uri;
+    private dbPath;
     private handler;
     constructor();
     private dispose();

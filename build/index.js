@@ -9,12 +9,12 @@ export class ImageCache {
     constructor() {
         this.cache = {};
     }
-    getPath(uri, immutable) {
-        let path = uri.substring(uri.lastIndexOf("/"));
+    getPath(dbPath, immutable) {
+        let path = dbPath.substring(dbPath.lastIndexOf("/"));
         path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
         const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
         if (immutable === true) {
-            return BASE_DIR + "/" + SHA1(uri) + ext;
+            return BASE_DIR + "/" + SHA1(dbPath) + ext;
         }
         else {
             return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
@@ -35,21 +35,14 @@ export class ImageCache {
         const { dbPath, dbProvider } = source;
         if (!this.cache[dbPath]) {
             console.log('Entry not in application cache');
-            dbProvider.getInstance().firebase.storage()
-                .ref(dbPath)
-                .getDownloadURL().then((uri) => {
-                const sourceMod = Object.assign({ 'uri': uri }, source);
-                this.cache[dbPath] = {
-                    source: sourceMod,
-                    downloading: false,
-                    handlers: [handler],
-                    immutable: immutable === true,
-                    path: immutable === true ? this.getPath(uri, immutable) : undefined
-                };
-                this.get(dbPath);
-            }).catch(err => {
-                console.log('Error retriveing download URL : ', err);
-            });
+            this.cache[dbPath] = {
+                source: source,
+                downloading: false,
+                handlers: [handler],
+                immutable: immutable === true,
+                path: immutable === true ? this.getPath(dbPath, immutable) : undefined
+            };
+            this.get(dbPath);
         }
         else {
             this.cache[dbPath].handlers.push(handler);
@@ -66,39 +59,46 @@ export class ImageCache {
             });
         }
     }
-    bust(uri) {
-        const cache = this.cache[uri];
-        if (cache !== undefined && !cache.immutable) {
-            cache.path = undefined;
-            this.get(uri);
-        }
-    }
-    cancel(uri) {
-        const cache = this.cache[uri];
-        if (cache && cache.downloading) {
-            cache.task.cancel();
-        }
-    }
+    // bust(uri: string) {
+    //     const cache = this.cache[uri];
+    //     if (cache !== undefined && !cache.immutable) {
+    //         cache.path = undefined;
+    //         this.get(uri);
+    //     }
+    // }
+    //
+    // cancel(uri: string) {
+    //     const cache = this.cache[uri];
+    //     if (cache && cache.downloading) {
+    //         cache.task.cancel();
+    //     }
+    // }
     download(cache) {
         const { source } = cache;
-        const { uri } = source;
-        if (!cache.downloading) {
-            console.log('downloading...', source);
-            const path = this.getPath(uri, cache.immutable);
-            cache.downloading = true;
-            const method = source.method ? source.method : "GET";
-            cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
-                console.log('download finished...');
-                cache.downloading = false;
-                cache.path = path;
-                this.notify(source.dbPath);
-            }).catch(() => {
-                cache.downloading = false;
-                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
-                RNFetchBlob.fs.unlink(path);
-            });
-        }
+        const { dbPath, dbProvider } = source;
+        dbProvider.getInstance().firebase.storage()
+            .ref(dbPath)
+            .getDownloadURL().then((uri) => {
+            if (!cache.downloading) {
+                console.log('downloading...', source);
+                const path = this.getPath(dbPath, cache.immutable);
+                cache.downloading = true;
+                const method = source.method ? source.method : "GET";
+                cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
+                cache.task.then(() => {
+                    console.log('download finished...');
+                    cache.downloading = false;
+                    cache.path = path;
+                    this.notify(source.dbPath);
+                }).catch(() => {
+                    cache.downloading = false;
+                    // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
+                    RNFetchBlob.fs.unlink(path);
+                });
+            }
+        }).catch(err => {
+            console.log('Error retriveing download URL : ', err);
+        });
     }
     get(dbPath) {
         const cache = this.cache[dbPath];
@@ -167,14 +167,14 @@ export class BaseCachedImage extends Component {
     componentWillMount() {
         const { mutable } = this.props;
         const source = this.checkSource(this.props.source);
-        if (source.uri || source.dbPath) {
+        if (source.dbPath) {
             this.observe(source, mutable === true);
         }
     }
     componentWillReceiveProps(nextProps) {
         const { mutable } = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (source.uri || source.dbPath) {
+        if (source.dbPath) {
             this.observe(source, mutable === true);
         }
     }
