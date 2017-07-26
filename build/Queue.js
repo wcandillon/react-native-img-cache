@@ -3,7 +3,6 @@ const Node = require('./Node').Node;
 export class PriorityQueue {
 
   constructor() {
-      this.queue = [];
       this.currentSize = 0;
       this.head = new Node();
       this.tail = new Node();
@@ -49,12 +48,25 @@ export class PriorityQueue {
   print(){
     let curr = this.head.next;
     let str = "";
-    while (curr != this.tail){
-      str += curr.val + "->"
-      curr = curr.next;
+    if (this.currentSize != 0){
+      while (curr != this.tail){
+        str += curr.val + "->"
+        curr = curr.next;
+      }
     }
     console.log('Q: ', str);
     return str;
+  }
+  save(){
+    let curr = this.head.next;
+    let res = [];
+    if (this.currentSize != 0){
+        while (curr != this.tail){
+          res.push(curr.val)
+          curr = curr.next;
+        }
+      }
+    return res;
   }
 
 }

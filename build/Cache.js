@@ -1,32 +1,59 @@
-import RNFetchBlob from "react-native-fetch-blob";
+
+import { Node } from './Node';
+import { PriorityQueue } from './Queue';
+
+const RNFetchBlob = require("react-native-fetch-blob").default;
 const SHA1 = require("crypto-js/sha1");
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/image-cache/files";
-const QUEUE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/image-cache";
-const CACHE_LIMIT_FILE_COUNT = 10;
-const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
+const BASE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/react-native-img-cache/files";
+const QUEUE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/react-native-img-cache/";
+const CACHE_LIMIT_FILE_COUNT = 5;
 
 export class ImageCache {
 
-    readInQueue() {
+    static readInQueue(file) {
       return new Promise((resolve, reject) => {
-        RNFetchBlob.fs.readFile(QUEUE_DIR, 'base64')
-        .then((data) => {
-            if (exists) {
-                this.notify(dbPath);
-            }
-            else {
-                this.download(cache);
-            }
-        })
+        RNFetchBlob.fs.readFile(QUEUE_DIR + file, 'utf8')
+        .then((data) => resolve(JSON.parse(data)))
         .catch((err) => {
-         console.log(err);
+         if (err.code === 'RNFetchBlob failed to read file' ){
+           RNFetchBlob.fs.writeFile(QUEUE_DIR + file, '[]', 'utf8')
+           .then((result) => resolve([]))
+           .catch((err) => reject(err))
+         } else {
+           reject(err)
+         }
         });
       })
     }
-    constructor() {
-        this.cache = {};
+
+    static save(file, queueData) {
+      return new Promise((resolve, reject) => {
+        const data = JSON.stringify(queueData)
+        RNFetchBlob.fs.writeFile(QUEUE_DIR + file, data, 'utf8')
+        .then((result) => (process.env.NODE_ENV === "TEST") ? console.log("") : console.log('Queue successfully saved!') )
+        .catch((err) => reject(err))
+      })
     }
+
+    prepareMem(data){
+      let queue = new PriorityQueue();
+      const map = {};
+      data.forEach((d) => {
+        let n = new Node(d)
+        queue.enqueue(n)
+        map[d] = n;
+      })
+      return {queue, map}
+    }
+
+    constructor(data) {
+        this.cache = {};
+        const { queue, map } = this.prepareMem(data)
+        this.queue = queue;
+        this.map = map;
+    }
+
     getPath(dbPath, immutable) {
         let path = dbPath.substring(dbPath.lastIndexOf("/"));
         const terms = dbPath.split("/");
@@ -39,23 +66,33 @@ export class ImageCache {
             return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
         }
     }
-    static load() {
+    // static load(file) {
+    //   return new Promise((resolve, reject) => {
+    //     this.readInQueue(file)
+    //     .then((data) => resolve(data))
+    //     .catch((err) => reject(err))
+    //   })
+    // }
+    static get() {
       return new Promise((resolve, reject) => {
-        readInQueue
-        .then((data) => resolve(data))
-        .catch((err) => reject(err))
+        if (!ImageCache.instance) {
+          this.readInQueue('queue.js')
+          .then((data) => {
+            ImageCache.instance = new ImageCache(data);
+            resolve(ImageCache.instance);
+          })
+          .catch((err) => reject(err))
+        } else {
+          resolve(ImageCache.instance);
+        }
       })
     }
-    static get() {
-        if (!ImageCache.instance) {
-            ImageCache.instance = new ImageCache();
-        }
-        return ImageCache.instance;
-    }
+
     clear() {
         this.cache = {};
         return RNFetchBlob.fs.unlink(BASE_DIR);
     }
+
     on(source, handler, immutable) {
         console.log('ImageCache Operations on...');
         const { dbPath, dbProvider } = source;
@@ -107,7 +144,7 @@ export class ImageCache {
             .ref(dbPath)
             .getDownloadURL().then((uri) => {
             if (!cache.downloading) {
-                console.log('downloading...', source);
+                console.log('downloading...');
                 const path = this.getPath(dbPath, cache.immutable);
                 cache.downloading = true;
                 const method = source.method ? source.method : "GET";
@@ -149,5 +186,36 @@ export class ImageCache {
         handlers.forEach(handler => {
             handler(this.cache[dbPath].path);
         });
+        //Cache eviction update
+        this.update(dbPath)
+    }
+    update(fileKey){
+
+      let updateNode;
+      if (this.map[fileKey]){
+        updateNode = this.map[fileKey]
+        //remove from queue
+        this.queue.remove(updateNode)
+      } else {
+        //if cache is full
+        if (this.queue.getSize() >= CACHE_LIMIT_FILE_COUNT){
+          console.log('Cache full! currentSize: ', this.queue.getSize())
+          //remove from queue
+          const toRemove = this.queue.dequeue();
+          //remove from map
+          delete this.map[toRemove.val]
+          //remove from disk
+          RNFetchBlob.fs.unlink(this.cache[toRemove.val].path);
+          //ToDo: delete from this.cache
+        }
+        //make new node
+        updateNode = new Node(fileKey);
+        //add new to map
+        this.map[fileKey] = updateNode;
+      }
+      //enqueue new to queue
+      this.queue.enqueue(updateNode)
+      //save queue to disk
+      ImageCache.save('queue.js', this.queue.save());
     }
 }
