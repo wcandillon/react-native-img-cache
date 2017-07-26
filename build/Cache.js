@@ -5,9 +5,9 @@ import { PriorityQueue } from './Queue';
 const RNFetchBlob = require("react-native-fetch-blob").default;
 const SHA1 = require("crypto-js/sha1");
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-const BASE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/react-native-img-cache/files";
-const QUEUE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/react-native-img-cache/";
-const CACHE_LIMIT_FILE_COUNT = 5;
+const BASE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/imageFiles";
+const QUEUE_DIR = RNFetchBlob.fs.dirs.DocumentDir + "/";
+const CACHE_LIMIT_FILE_COUNT = 10;
 
 export class ImageCache {
 
@@ -82,7 +82,7 @@ export class ImageCache {
     static get() {
       return new Promise((resolve, reject) => {
         if (!ImageCache.instance) {
-          this.readInQueue('queue.js')
+          this.readInQueue('queue.txt')
           .then((data) => {
             ImageCache.instance = new ImageCache(data);
             resolve(ImageCache.instance);
@@ -223,6 +223,6 @@ export class ImageCache {
       //enqueue new to queue
       this.queue.enqueue(updateNode)
       //save queue to disk
-      ImageCache.save('queue.js', this.queue.save());
+      ImageCache.save('queue.txt', this.queue.save());
     }
 }
