@@ -211,7 +211,7 @@ export class ImageCache {
           //remove from map
           delete this.map[toRemove.val]
           //remove from disk
-          const path = this.getPath(toRemove, true)
+          const path = this.getPath(toRemove.val, true)
           RNFetchBlob.fs.unlink(path);
           //ToDo: delete from this.cache
         }
