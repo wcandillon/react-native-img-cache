@@ -40,7 +40,4 @@ jspm_packages
 .node_repl_history
 
 # Typescript
-# build
-
-# Babel config since it messes with RN init
-.babelrc
+build
