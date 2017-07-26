@@ -16,23 +16,19 @@ export class ImageCache {
         RNFetchBlob.fs.readFile(QUEUE_DIR + file, 'utf8')
         .then((data) => resolve(JSON.parse(data)))
         .catch((err) => {
-         if (err.code === 'RNFetchBlob failed to read file' ){
-           console.log(err);
-           RNFetchBlob.fs.exists(QUEUE_DIR + file).then((exists) => {
-               if (exists) {
-                 RNFetchBlob.fs.writeFile(QUEUE_DIR + file, '[]', 'utf8')
-                 .then((result) => resolve([]))
-                 .catch((err) => reject(err))
-               }
-               else {
-                 RNFetchBlob.fs.createFile(QUEUE_DIR + file, '[]', 'utf8')
-                 .then((result) => resolve([]))
-                 .catch((err) => reject(err))
-               }
-           });
-         } else {
-           reject(err)
-         }
+          console.log('No Queue File Found: ', err);
+          RNFetchBlob.fs.exists(QUEUE_DIR + file).then((exists) => {
+             if (exists) {
+               RNFetchBlob.fs.writeFile(QUEUE_DIR + file, '[]', 'utf8')
+               .then((result) => resolve([]))
+               .catch((err) => reject(err))
+             }
+             else {
+               RNFetchBlob.fs.createFile(QUEUE_DIR + file, '[]', 'utf8')
+               .then((result) => resolve([]))
+               .catch((err) => reject(err))
+             }
+         });
         });
       })
     }
