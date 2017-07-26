@@ -41,3 +41,6 @@ jspm_packages
 
 # Typescript
 # build
+
+# Babel config since it messes with RN init
+.babelrc
