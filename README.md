@@ -110,3 +110,19 @@ Observers can be deregistered using `dispose`:
 ```js
 ImageCache.get().dispose(uri, observer);
 ```
+
+## Testing with jest
+
+### Mocking CachedImage
+
+With jest, testing a snapshot can generate errors. Jest doesn't know how to generate the component CachedImage. For fix this, you have to mock CachedImage with Image component.
+
+```js
+jest.mock('react-native-img-cache', () => {
+  const mockComponent = require('react-native/jest/mockComponent')
+  return {
+    CustomCachedImage: mockComponent('Image'),
+    CachedImage: mockComponent('Image'),
+  }
+})
+```
