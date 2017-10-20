@@ -110,6 +110,7 @@ export class ImageCache {
                 cache.downloading = false;
                 // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
                 RNFetchBlob.fs.unlink(path);
+                this.notify(null);
             });
         }
     }
@@ -134,7 +135,12 @@ export class ImageCache {
     private notify(uri: string) {
         const handlers = this.cache[uri].handlers;
         handlers.forEach(handler => {
-            handler(this.cache[uri].path as string);
+            if (uri) { // Success
+              handler(this.cache[uri].path as string);
+            }
+            else { // Download failed
+              handler(null);
+            }
         });
     }
 }
