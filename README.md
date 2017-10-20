@@ -89,6 +89,18 @@ It can also be used to cancel the download of an image. This can be very useful 
 ImageCache.get().cancel("https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg");
 ```
 
+#### preload(uri, observer, immutable)
+
+Preload image without rendering of the image. Returns the path on success and `null` on failure.
+
+```js
+ImageCache.get().preload({
+        uri: "https://example.com/image.jpg"
+    }, (path) => {
+        // Do something
+    })
+```
+
 #### on(uri, observer, immutable)
 
 The `ImageCache` class can register observers to the cache.
