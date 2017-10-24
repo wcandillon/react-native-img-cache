@@ -192,7 +192,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
 
-    private checkSource(source: ImageURISource | ImageURISource[]): ImageURISource {
+    private checkSource(source: number | ImageURISource | ImageURISource[]): ImageURISource {
         if (Array.isArray(source)) {
             throw new Error(`Giving multiple URIs to CachedImage is not yet supported.
             If you want to see this feature supported, please file and issue at
