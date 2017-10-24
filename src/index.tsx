@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Image, ImageProperties, ImageURISource, Platform} from "react-native";
+import {Image, ImageBackground, ImageProperties, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
@@ -232,11 +232,13 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
 
-    private checkSource(source: ImageURISource | ImageURISource[]): ImageURISource {
+    private checkSource(source: number | ImageURISource | ImageURISource[]): ImageURISource {
         if (Array.isArray(source)) {
             throw new Error(`Giving multiple URIs to CachedImage is not yet supported.
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
+        } else if (typeof(source) === "number") {
+           throw new Error(`Provided an image that is available locally already.`);
         }
         return source;
     }
@@ -271,6 +273,18 @@ export class CachedImage extends BaseCachedImage<CachedImageProps> {
     render() {
         const props = this.getProps();
         return <Image {...props}>{this.props.children}</Image>;
+    }
+}
+
+export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
+
+    constructor() {
+        super();
+    }
+
+    render() {
+        const props = this.getProps();
+        return <ImageBackground {...props}>{this.props.children}</ImageBackground>;
     }
 }
 
