@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/wcandillon/react-native-image-cache#readme",
   "devDependencies": {
-    "@types/react": "^15.0.9",
-    "@types/react-native": "^0.37.11",
+    "@types/react": "^16.0.5",
+    "@types/react-native": "^0.49.2",
     "condition-circle": "^1.5.0",
     "semantic-release": "^6.3.2",
     "ts-npm-lint": "^0.1.0",
