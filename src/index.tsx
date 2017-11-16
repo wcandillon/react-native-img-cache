@@ -232,6 +232,9 @@ export class CachedImage extends BaseCachedImage<CachedImageProps> {
 
     render() {
         const props = this.getProps();
+        if (React.Children.count(this.props.children) > 0) {
+            console.warn("Using <CachedImage> with children is deprecated, use <CachedImageBackground> instead.");
+        }
         return <Image {...props}>{this.props.children}</Image>;
     }
 }
