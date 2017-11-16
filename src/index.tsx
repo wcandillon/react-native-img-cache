@@ -160,11 +160,6 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         this.setState({ path });
     }
 
-    constructor() {
-        super();
-        this.state = { path: undefined };
-    }
-
     private dispose() {
         if (this.uri) {
             ImageCache.get().dispose(this.uri, this.handler);
@@ -206,6 +201,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillMount() {
         const {mutable} = this.props;
         const source = this.checkSource(this.props.source);
+        this.state = { path: undefined };
         if (source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
