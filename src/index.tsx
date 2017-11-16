@@ -222,10 +222,6 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
 
 export class CachedImage extends BaseCachedImage<CachedImageProps> {
 
-    constructor() {
-        super();
-    }
-
     render() {
         const props = this.getProps();
         if (React.Children.count(this.props.children) > 0) {
@@ -237,10 +233,6 @@ export class CachedImage extends BaseCachedImage<CachedImageProps> {
 
 export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
 
-    constructor() {
-        super();
-    }
-
     render() {
         const props = this.getProps();
         return <ImageBackground {...props}>{this.props.children}</ImageBackground>;
@@ -248,10 +240,6 @@ export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
 }
 
 export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCachedImage<P> {
-
-    constructor() {
-        super();
-    }
 
     render() {
         const {component} = this.props;
