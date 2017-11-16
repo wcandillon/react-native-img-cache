@@ -160,11 +160,6 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         this.setState({ path });
     }
 
-    constructor() {
-        super();
-        this.state = { path: undefined };
-    }
-
     private dispose() {
         if (this.uri) {
             ImageCache.get().dispose(this.uri, this.handler);
@@ -206,6 +201,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillMount() {
         const {mutable} = this.props;
         const source = this.checkSource(this.props.source);
+        this.state = { path: undefined };
         if (source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
@@ -226,21 +222,16 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
 
 export class CachedImage extends BaseCachedImage<CachedImageProps> {
 
-    constructor() {
-        super();
-    }
-
     render() {
         const props = this.getProps();
+        if (React.Children.count(this.props.children) > 0) {
+            console.warn("Using <CachedImage> with children is deprecated, use <CachedImageBackground> instead.");
+        }
         return <Image {...props}>{this.props.children}</Image>;
     }
 }
 
 export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
-
-    constructor() {
-        super();
-    }
 
     render() {
         const props = this.getProps();
@@ -249,10 +240,6 @@ export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
 }
 
 export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCachedImage<P> {
-
-    constructor() {
-        super();
-    }
 
     render() {
         const {component} = this.props;
