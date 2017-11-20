@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/wcandillon/react-native-image-cache.git"
+    "url": "https://github.com/wcandillon/react-native-img-cache.git"
   },
   "keywords": [
     "react",
@@ -26,9 +26,9 @@
   "author": "William Candillon <wcandillon@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/wcandillon/react-native-image-cache/issues"
+    "url": "https://github.com/wcandillon/react-native-img-cache/issues"
   },
-  "homepage": "https://github.com/wcandillon/react-native-image-cache#readme",
+  "homepage": "https://github.com/wcandillon/react-native-img-cache#readme",
   "devDependencies": {
     "@types/react": "^16.0.5",
     "@types/react-native": "^0.49.2",
