@@ -200,7 +200,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         const {mutable} = this.props;
         const source = this.checkSource(this.props.source);
         this.setState({ path: undefined });
-        if (source.uri) {
+        if (typeof(source) !== "number" && source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
@@ -208,7 +208,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillReceiveProps(nextProps: P) {
         const {mutable} = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (source.uri) {
+        if (typeof(source) !== "number" && source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
