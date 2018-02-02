@@ -9,6 +9,8 @@ CachedImage component and Cache image manager for React Native.
 
 **I am no longer maintaining this library but [react-native-expo-image-cache](https://github.com/wcandillon/react-native-expo-image-cache) which depends on ExpoKit.**
 
+**Checkout [5 things to know about Images in React Native](https://medium.com/@wcandillon/5-things-to-know-about-images-react-native-69be41d2a9ee)**
+
 ## Why do I need this?
 Starting version `0.43`, the React Native [Image component](https://facebook.github.io/react-native/docs/image.html) has now a cache property: `cache: force-cache` (iOS only). This is a major improvement but only for iOS and at this time, I wasn't able to use it in a way that provides a user experience as smooth as this module.
 
