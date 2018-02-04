@@ -200,11 +200,6 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         this.setState({ path });
     }
 
-    constructor() {
-        super();
-        this.state = { path: undefined };
-    }
-
     private dispose() {
         if (this.uri) {
             ImageCache.get().dispose(this.uri, this.handler);
@@ -232,13 +227,11 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     }
 
 
-    private checkSource(source: number | ImageURISource | ImageURISource[]): ImageURISource {
+    private checkSource(source: number | ImageURISource | ImageURISource[]): ImageURISource | number {
         if (Array.isArray(source)) {
             throw new Error(`Giving multiple URIs to CachedImage is not yet supported.
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
-        } else if (typeof(source) === "number") {
-           throw new Error(`Provided an image that is available locally already.`);
         }
         return source;
     }
@@ -246,7 +239,8 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillMount() {
         const {mutable} = this.props;
         const source = this.checkSource(this.props.source);
-        if (source.uri) {
+        this.setState({ path: undefined });
+        if (typeof(source) !== "number" && source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
@@ -254,7 +248,7 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
     componentWillReceiveProps(nextProps: P) {
         const {mutable} = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (source.uri) {
+        if (typeof(source) !== "number" && source.uri) {
             this.observe(source as CachedImageURISource, mutable === true);
         }
     }
@@ -266,21 +260,16 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
 
 export class CachedImage extends BaseCachedImage<CachedImageProps> {
 
-    constructor() {
-        super();
-    }
-
     render() {
         const props = this.getProps();
+        if (React.Children.count(this.props.children) > 0) {
+            console.warn("Using <CachedImage> with children is deprecated, use <CachedImageBackground> instead.");
+        }
         return <Image {...props}>{this.props.children}</Image>;
     }
 }
 
 export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
-
-    constructor() {
-        super();
-    }
 
     render() {
         const props = this.getProps();
@@ -289,10 +278,6 @@ export class CachedImageBackground extends BaseCachedImage<CachedImageProps> {
 }
 
 export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCachedImage<P> {
-
-    constructor() {
-        super();
-    }
 
     render() {
         const {component} = this.props;
