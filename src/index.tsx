@@ -6,11 +6,19 @@ const SHA1 = require("crypto-js/sha1");
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
-export type CacheHandler = (path: string) => void;
+export type CacheHandler = (path: string | null) => void;
 
 export interface CachedImageURISource extends ImageURISource {
     uri: string;
 }
+
+type RNFetchBlobStat = {
+  filename: string,
+  lastModified: number,
+  path: string,
+  size: number,
+  type: string
+};
 
 type CacheEntry = {
     source: CachedImageURISource;
@@ -94,6 +102,32 @@ export class ImageCache {
         }
     }
 
+    preload(source: CachedImageURISource, handler: CacheHandler, immutable?: boolean) {
+      // Get stats of file (file exists, even if download failed, in case of a succesfull resolved request)
+      const handlerWrapper = (path: string | null) => {
+        if (path) {
+          RNFetchBlob.fs.stat(path)
+          .then((stat: RNFetchBlobStat) => {
+            // Check if downloaded file is larger then 0 bytes
+            if (stat && stat.size > 0) {
+              handler(path);
+            }
+            else { // File downloaded, but without content
+                handler(null);
+            }
+          })
+          .catch(() => {
+            handler(null);
+          });
+        }
+        else {
+          handler(null);
+        }
+      };
+
+      this.on(source, handlerWrapper, immutable);
+    }
+
     private download(cache: CacheEntry) {
         const {source} = cache;
         const {uri} = source;
@@ -105,11 +139,12 @@ export class ImageCache {
             cache.task.then(() => {
                 cache.downloading = false;
                 cache.path = path;
-                this.notify(uri);
+                this.notify(uri, true);
             }).catch(() => {
                 cache.downloading = false;
                 // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
                 RNFetchBlob.fs.unlink(path);
+                this.notify(uri, false);
             });
         }
     }
@@ -120,7 +155,7 @@ export class ImageCache {
             // We check here if IOS didn't delete the cache content
             RNFetchBlob.fs.exists(cache.path).then((exists: boolean) => {
                 if (exists) {
-                    this.notify(uri);
+                    this.notify(uri, true);
                 } else {
                     this.download(cache);
                 }
@@ -131,10 +166,15 @@ export class ImageCache {
 
     }
 
-    private notify(uri: string) {
+    private notify(uri: string, success: boolean) {
         const handlers = this.cache[uri].handlers;
         handlers.forEach(handler => {
-            handler(this.cache[uri].path as string);
+            if (success) {
+              handler(this.cache[uri].path as string);
+            }
+            else { // Download failed
+              handler(null);
+            }
         });
     }
 }
