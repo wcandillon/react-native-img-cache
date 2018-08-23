@@ -21,6 +21,7 @@ type CacheEntry = {
     task?: any;
 };
 
+
 export class ImageCache {
 
     private getPath(uri: string, immutable?: boolean): string {
@@ -178,8 +179,13 @@ export abstract class BaseCachedImage<P extends CachedImageProps> extends Compon
         const props: any = {};
         Object.keys(this.props).forEach(prop => {
             if (prop === "source" && (this.props as any).source.uri) {
-                props["source"] = this.state.path ? {uri: FILE_PREFIX + this.state.path} : {};
-            } else if (["mutable", "component"].indexOf(prop) === -1) {
+                if (useLocalImage(this.props.source)) {
+                    props["source"] = { uri: this.props.source.uri  }
+                } else {
+                    props["source"] = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
+                }
+            }
+            else if (["mutable", "component"].indexOf(prop) === -1) {
                 props[prop] = (this.props as any)[prop];
             }
         });
@@ -245,4 +251,23 @@ export class CustomCachedImage<P extends CustomCachedImageProps> extends BaseCac
         const Component = component;
         return <Component {...props}>{this.props.children}</Component>;
     }
+}
+
+const useLocalImage = (source: ImageURISource) => {
+    // No source.
+    if (!source) return true
+    // No uri.
+    if (!source.uri) return true
+    // iphone local image
+    if (source.uri.startsWith('/private/')) return true
+    // Android local image.
+    if (source.uri.startsWith('file://')) return true
+    // Content URI.
+    if (source.uri.startsWith('content://')) return true
+    // Smart album.
+    if (source.uri.startsWith('photos://')) return true
+    // From asset library / camera roll.
+    if (source.uri.startsWith('assets-library://')) return true
+    // remote source.
+    return false
 }
