@@ -1,1 +1,1 @@
-declare module "react-native-fetch-blob";
+declare module "rn-fetch-blob";
