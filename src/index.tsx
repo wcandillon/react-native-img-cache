@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Image, ImageBackground, ImageProperties, ImageURISource, Platform} from "react-native";
-import RNFetchBlob from "react-native-fetch-blob";
+import RNFetchBlob from "rn-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -108,7 +108,6 @@ export class ImageCache {
                 this.notify(uri);
             }).catch(() => {
                 cache.downloading = false;
-                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
                 RNFetchBlob.fs.unlink(path);
             });
         }
