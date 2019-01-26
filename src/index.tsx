@@ -115,7 +115,7 @@ export class ImageCache {
 
     private get(uri: string) {
         const cache = this.cache[uri];
-        if (cache.path) {
+        if (cache.path && !cache.downloading) {
             // We check here if IOS didn't delete the cache content
             RNFetchBlob.fs.exists(cache.path).then((exists: boolean) => {
                 if (exists) {
