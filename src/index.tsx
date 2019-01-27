@@ -102,10 +102,14 @@ export class ImageCache {
             cache.downloading = true;
             const method = source.method ? source.method : "GET";
             cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
-                cache.downloading = false;
-                cache.path = path;
-                this.notify(uri);
+            cache.task.then(res => {
+                if (res.info().status === 200) {
+                    cache.downloading = false;
+                    cache.path = path;
+                    this.notify(uri);
+                } else {
+                    cache.downloading = false;
+                }
             }).catch(() => {
                 cache.downloading = false;
                 RNFetchBlob.fs.unlink(path);
