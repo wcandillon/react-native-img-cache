@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Image, ImageBackground, ImageProperties, ImageURISource, Platform} from "react-native";
+import {Image, ImageBackground, ImageProps, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
@@ -138,7 +138,7 @@ export class ImageCache {
     }
 }
 
-export interface CachedImageProps extends ImageProperties {
+export interface CachedImageProps extends ImageProps {
     mutable?: boolean;
 
 }
