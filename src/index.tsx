@@ -136,7 +136,7 @@ export class ImageCache {
 
     }
 
-    private notify(uri: string, status = false) {
+    private notify(uri: string, status = true) {
         const handlers = this.cache[uri].handlers;
         handlers.forEach(handler => {
             if (status) {
