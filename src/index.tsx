@@ -6,7 +6,7 @@ const SHA1 = require("crypto-js/sha1");
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
-export type CacheHandler = (path: string) => void;
+export type CacheHandler = (path: string|null) => void;
 
 export interface CachedImageURISource extends ImageURISource {
     uri: string;
@@ -102,13 +102,19 @@ export class ImageCache {
             cache.downloading = true;
             const method = source.method ? source.method : "GET";
             cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
+            cache.task.then((res: any) => {
                 cache.downloading = false;
-                cache.path = path;
-                this.notify(uri);
+                if (res.respInfo.status >= 400) {
+                    RNFetchBlob.fs.unlink(path);
+                    this.notify(uri, false);
+                } else {
+                    cache.path = path;
+                    this.notify(uri, true);
+                }
             }).catch(() => {
                 cache.downloading = false;
                 RNFetchBlob.fs.unlink(path);
+                this.notify(uri, false);
             });
         }
     }
@@ -130,10 +136,14 @@ export class ImageCache {
 
     }
 
-    private notify(uri: string) {
+    private notify(uri: string, status = true) {
         const handlers = this.cache[uri].handlers;
         handlers.forEach(handler => {
-            handler(this.cache[uri].path as string);
+            if (status) {
+                handler(this.cache[uri].path as string);
+            } else {
+                handler(null);
+            }
         });
     }
 }
