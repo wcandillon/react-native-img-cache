@@ -26,7 +26,10 @@ export class ImageCache {
     private getPath(uri: string, immutable?: boolean): string {
         let path = uri.substring(uri.lastIndexOf("/"));
         path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
-        const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+        let ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+        if(['.jpg','.gif','.jpeg','.png'].indexOf(ext.toLowerCase()) == -1) { // ensure it's a valid extension 
+            ext = '.jpg'
+        }
         if (immutable === true) {
             return BASE_DIR + "/" + SHA1(uri) + ext;
         } else {
