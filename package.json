@@ -1,6 +1,6 @@
 {
   "name": "react-native-img-cache",
-  "version": "1.6.0",
+  "version": "1.6.2-burea",
   "description": "CachedImage component for React native",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -29,11 +29,11 @@
   },
   "homepage": "https://github.com/wcandillon/react-native-img-cache#readme",
   "devDependencies": {
-    "@types/react": "^16.0.5",
-    "@types/react-native": "^0.49.2",
+    "@types/react": "^16.8.22",
+    "@types/react-native": "^0.57.63",
     "ts-npm-lint": "^0.1.0",
-    "tslint": "^4.4.2",
-    "typescript": "^2.1.6"
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.2"
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1"

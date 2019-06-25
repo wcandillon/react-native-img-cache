@@ -1,12 +1,12 @@
 import React, {Component} from "react";
-import {Image, ImageBackground, ImageProperties, ImageURISource, Platform} from "react-native";
+import {Image, ImageBackground, ImageProps, ImageURISource, Platform} from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
-export type CacheHandler = (path: string) => void;
+export type CacheHandler = (path: string|null) => void;
 
 export interface CachedImageURISource extends ImageURISource {
     uri: string;
@@ -26,7 +26,10 @@ export class ImageCache {
     private getPath(uri: string, immutable?: boolean): string {
         let path = uri.substring(uri.lastIndexOf("/"));
         path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
-        const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+        let ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
+        if ([".jpg", ".gif", ".jpeg", ".png"].indexOf(ext.toLowerCase()) === -1) { // ensure it's a valid extension
+            ext = ".jpg";
+        }
         if (immutable === true) {
             return BASE_DIR + "/" + SHA1(uri) + ext;
         } else {
@@ -102,20 +105,26 @@ export class ImageCache {
             cache.downloading = true;
             const method = source.method ? source.method : "GET";
             cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
+            cache.task.then((res: any) => {
                 cache.downloading = false;
-                cache.path = path;
-                this.notify(uri);
+                if (res.respInfo.status >= 400) {
+                    RNFetchBlob.fs.unlink(path);
+                    this.notify(uri, false);
+                } else {
+                    cache.path = path;
+                    this.notify(uri, true);
+                }
             }).catch(() => {
                 cache.downloading = false;
                 RNFetchBlob.fs.unlink(path);
+                this.notify(uri, false);
             });
         }
     }
 
     private get(uri: string) {
         const cache = this.cache[uri];
-        if (cache.path) {
+        if (cache.path && !cache.downloading) {
             // We check here if IOS didn't delete the cache content
             RNFetchBlob.fs.exists(cache.path).then((exists: boolean) => {
                 if (exists) {
@@ -130,15 +139,19 @@ export class ImageCache {
 
     }
 
-    private notify(uri: string) {
+    private notify(uri: string, status = true) {
         const handlers = this.cache[uri].handlers;
         handlers.forEach(handler => {
-            handler(this.cache[uri].path as string);
+            if (status) {
+                handler(this.cache[uri].path as string);
+            } else {
+                handler(null);
+            }
         });
     }
 }
 
-export interface CachedImageProps extends ImageProperties {
+export interface CachedImageProps extends ImageProps {
     mutable?: boolean;
 
 }
