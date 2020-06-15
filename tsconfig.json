@@ -12,7 +12,12 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "strictNullChecks": true,
-        "declaration": true
+        "declaration": true,
+        "types": [
+            "react",
+            "react-native",
+        ],
+        "skipLibCheck": true
     },
     "filesGlob": [
         "src/**/*.ts",
